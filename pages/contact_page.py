@@ -3,7 +3,7 @@ Page Object для контактной формы
 """
 
 from selenium.webdriver.common.by import By
-from base_page import BasePage
+from .base_page import BasePage
 import time
 
 class ContactPage(BasePage):
@@ -167,4 +167,5 @@ class ContactPage(BasePage):
         message = self.find_element(self.MESSAGE_TEXTAREA).get_attribute("value")
         agree = self.find_element(self.AGREE_CHECKBOX).is_selected()
         
+
         return bool(name and email and message and agree)
