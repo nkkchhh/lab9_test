@@ -7,7 +7,7 @@ import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from contact_page import ContactPage
+from pages.contact_page import ContactPage
 
 class TestContactForm:
     @pytest.fixture(autouse=True)
@@ -210,4 +210,5 @@ if __name__ == "__main__":
         print("=" * 60)
         
     finally:
+
         driver.quit()
