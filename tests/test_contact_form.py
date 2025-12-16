@@ -8,17 +8,13 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.core.os_manager import ChromeType
 from pages.contact_page import ContactPage
 
 class TestContactForm:
-        @pytest.fixture(autouse=True)
+    @pytest.fixture(autouse=True)
     def setup(self):
         """Настройка перед каждым тестом"""
-        from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.chrome.service import Service
-        from webdriver_manager.chrome import ChromeDriverManager
-        from webdriver_manager.core.os_manager import ChromeType
-
         # Настройки Chrome для GitHub Actions
         chrome_options = Options()
         chrome_options.add_argument('--headless')
@@ -181,4 +177,3 @@ class TestContactForm:
         assert not agree_checked, "Чекбокс согласия не сбросился"
         
         print("Форма успешно очищена")
-
