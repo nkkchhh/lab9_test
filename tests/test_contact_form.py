@@ -6,6 +6,7 @@ import pytest
 import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options  # ← ДОБАВЛЕНО
 from webdriver_manager.chrome import ChromeDriverManager
 from pages.contact_page import ContactPage
 
@@ -13,10 +14,15 @@ class TestContactForm:
     @pytest.fixture(autouse=True)
     def setup(self):
         """Настройка перед каждым тестом"""
+        # Настройки Chrome для GitHub Actions
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')          # ← ДОБАВЛЕНО
+        chrome_options.add_argument('--no-sandbox')        # ← ДОБАВЛЕНО
+        chrome_options.add_argument('--disable-dev-shm-usage') # ← ДОБАВЛЕНО
+        
         # Создаем драйвер
         service = Service(ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=service)
-        self.driver.maximize_window()
+        self.driver = webdriver.Chrome(service=service, options=chrome_options)  # ← ИЗМЕНЕНО
         
         # Создаем Page Object
         self.contact_page = ContactPage(self.driver)
@@ -172,7 +178,7 @@ if __name__ == "__main__":
     import os
     sys.path.append(os.path.dirname(os.path.abspath(__file__)))
     
-    # Создаем драйвер
+    # Создаем драйвер (без headless для локальной отладки)
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service)
     driver.maximize_window()
@@ -210,5 +216,4 @@ if __name__ == "__main__":
         print("=" * 60)
         
     finally:
-
         driver.quit()
