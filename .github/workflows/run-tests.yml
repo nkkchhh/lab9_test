@@ -1,1 +1,93 @@
+name: Run Contact Form UI Tests
 
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # Разрешает ручной запуск из интерфейса GitHub
+
+jobs:
+  ui-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # Автоматически останавливать через 10 минут
+    
+    steps:
+    # Шаг 1: Клонирование кода
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    # Шаг 2: Установка Python
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'  # Кэширование зависимостей для ускорения
+    
+    # Шаг 3: Установка Google Chrome (для UI-тестов)
+    - name: Install Google Chrome
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget gnupg
+        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+        echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        echo "Chrome версии: $(google-chrome --version)"
+    
+    # Шаг 4: Установка ChromeDriver
+    - name: Install ChromeDriver
+      run: |
+        # Получаем версию Chrome
+        CHROME_VERSION=$(google-chrome --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+        echo "Установлен Chrome версии: $CHROME_VERSION"
+        
+        # Получаем совместимую версию ChromeDriver
+        CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION%.*}")
+        echo "Устанавливаем ChromeDriver версии: $CHROMEDRIVER_VERSION"
+        
+        # Скачиваем и устанавливаем
+        wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
+        unzip -q chromedriver_linux64.zip
+        sudo mv chromedriver /usr/local/bin/chromedriver
+        sudo chmod +x /usr/local/bin/chromedriver
+        echo "ChromeDriver установлен: $(chromedriver --version)"
+    
+    # Шаг 5: Установка зависимостей Python
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    # Шаг 6: Запуск тестов с отчетом
+    - name: Run UI tests with pytest
+      run: |
+        # Создаем папку для отчетов
+        mkdir -p test-reports
+        
+        # Запускаем тесты с HTML отчетом
+        python -m pytest tests/ \
+          -v \
+          --html=test-reports/report.html \
+          --self-contained-html \
+          --junitxml=test-reports/junit.xml
+        
+        # Выводим информацию о результатах
+        echo "Тесты завершены. Отчеты сохранены в папке test-reports/"
+    
+    # Шаг 7: Загрузка отчетов как артефактов
+    - name: Upload test reports
+      if: always()  # Загружаем даже если тесты упали
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-reports
+        path: |
+          test-reports/
+        retention-days: 7
+    
+    # Шаг 8: Проверка успешности выполнения
+    - name: Check test results
+      if: always()
+      run: |
+        echo "Статус выполнения: ${{ job.status }}"
+        echo "Workflow завершен!"
