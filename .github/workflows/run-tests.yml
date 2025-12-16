@@ -5,12 +5,10 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:
 
 jobs:
   ui-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     
     steps:
     # 1. Клонирование кода
@@ -18,52 +16,29 @@ jobs:
       uses: actions/checkout@v4
     
     # 2. Установка Python
-    - name: Set up Python 3.10
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
-        cache: 'pip'
     
-    # 3. Установка Chrome (минимальная версия для webdriver-manager)
-    - name: Install Chrome (stable)
+    # 3. Установка Chrome
+    - name: Install Chrome
       run: |
         sudo apt-get update
         sudo apt-get install -y wget
-        wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-        echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
         sudo apt-get update
         sudo apt-get install -y google-chrome-stable
     
-    # 4. Установка зависимостей Python (webdriver-manager сам установит нужный ChromeDriver)
-    - name: Install Python dependencies
+    # 4. Установка ТОЛЬКО необходимых зависимостей
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
-    # 5. Запуск тестов
-    - name: Run UI tests with pytest
+    # 5. Запуск тестов (БЕЗ HTML ОТЧЕТА)
+    - name: Run tests with pytest
       run: |
-        echo "Проверка структуры проекта:"
-        ls -la
-        echo "---"
-        ls -la tests/
-        echo "---"
-        ls -la pages/
-        
-        echo "Запуск тестов..."
+        echo "=== Запуск тестов ==="
         python -m pytest tests/ -v
-    
-    # 6. Дополнительно: если нужен HTML отчет
-    - name: Generate HTML report
-      if: always()
-      run: |
-        python -m pytest tests/ -v --html=report.html --self-contained-html
-        echo "Отчет создан: report.html"
-    
-    # 7. Загрузка отчета
-    - name: Upload test report
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-report
-        path: report.html
