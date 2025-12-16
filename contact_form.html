@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контактная форма</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        
+        .required::after {
+            content: " *";
+            color: red;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+        }
+        
+        .checkbox-group label {
+            margin: 0;
+            font-weight: normal;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 5px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .field-error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .counter {
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .counter.warning {
+            color: orange;
+        }
+        
+        .counter.error {
+            color: red;
+        }
+        
+        .instructions {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Контактная форма</h1>
+        
+        <div class="instructions">
+            <p><strong>Инструкция:</strong> Заполните форму. Поля отмеченные * обязательны.</p>
+        </div>
+        
+        <form id="contactForm">
+            <!-- Имя -->
+            <div class="form-group">
+                <label for="name" class="required">Имя:</label>
+                <input type="text" id="name" name="name" placeholder="Введите ваше имя">
+                <div class="field-error" id="nameError">Поле обязательно для заполнения</div>
+            </div>
+            
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email" class="required">Email:</label>
+                <input type="email" id="email" name="email" placeholder="example@mail.com">
+                <div class="field-error" id="emailError">Введите корректный email адрес</div>
+            </div>
+            
+            <!-- Телефон -->
+            <div class="form-group">
+                <label for="phone">Телефон:</label>
+                <input type="tel" id="phone" name="phone" placeholder="+7 (999) 999-99-99">
+                <div class="field-error" id="phoneError">Введите телефон в формате +7 (XXX) XXX-XX-XX</div>
+            </div>
+            
+            <!-- Возраст -->
+            <div class="form-group">
+                <label for="age">Возраст:</label>
+                <select id="age" name="age">
+                    <option value="">Выберите возраст</option>
+                    <option value="18-25">18-25 лет</option>
+                    <option value="26-35">26-35 лет</option>
+                    <option value="36-45">36-45 лет</option>
+                    <option value="46+">46+ лет</option>
+                </select>
+            </div>
+            
+            <!-- Тема обращения -->
+            <div class="form-group">
+                <label for="subject" class="required">Тема обращения:</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="question" name="subject" value="question">
+                        <label for="question">Вопрос</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="complaint" name="subject" value="complaint">
+                        <label for="complaint">Жалоба</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="suggestion" name="subject" value="suggestion">
+                        <label for="suggestion">Предложение</label>
+                    </div>
+                </div>
+                <div class="field-error" id="subjectError">Выберите тему обращения</div>
+            </div>
+            
+            <!-- Сообщение -->
+            <div class="form-group">
+                <label for="message" class="required">Сообщение:</label>
+                <textarea id="message" name="message" rows="5" placeholder="Опишите вашу проблему или вопрос..." maxlength="500"></textarea>
+                <div class="counter" id="messageCounter">0/500</div>
+                <div class="field-error" id="messageError">Сообщение должно содержать от 10 до 500 символов</div>
+            </div>
+            
+            <!-- Согласие -->
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agree" name="agree">
+                    <label for="agree" class="required">Я согласен на обработку персональных данных</label>
+                </div>
+                <div class="field-error" id="agreeError">Необходимо дать согласие</div>
+            </div>
+            
+            <!-- Подписка -->
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="subscribe" name="subscribe" checked>
+                    <label for="subscribe">Подписаться на рассылку</label>
+                </div>
+            </div>
+            
+            <!-- Кнопки -->
+            <button type="submit" id="submitBtn">Отправить</button>
+            <button type="button" id="resetBtn" style="background: #f44336; margin-top: 10px;">Очистить форму</button>
+        </form>
+        
+        <div class="message success" id="successMessage">
+            Форма успешно отправлена! Мы свяжемся с вами в ближайшее время.
+        </div>
+        
+        <div class="message error" id="errorMessage">
+            Произошла ошибка при отправке формы. Пожалуйста, проверьте введенные данные.
+        </div>
+        
+        <!-- Информация для тестирования -->
+        <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 5px; font-family: monospace; font-size: 12px;">
+            <h3>Селекторы для автотестов:</h3>
+            <ul>
+                <li>Имя: id="name"</li>
+                <li>Email: id="email"</li>
+                <li>Телефон: id="phone"</li>
+                <li>Возраст: id="age"</li>
+                <li>Сообщение: id="message"</li>
+                <li>Чекбокс согласия: id="agree"</li>
+                <li>Кнопка отправки: id="submitBtn"</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // БАГИ ДЛЯ ТЕСТИРОВАНИЯ:
+        // 1. Email валидация принимает некорректные email
+        // 2. Телефон не проверяется на корректность
+        // 3. Радиокнопки можно не выбирать (баг)
+        // 4. Чекбокс согласия можно не ставить (баг)
+        // 5. Сообщение можно отправить пустым (баг)
+        // 6. Нет ограничения минимальной длины сообщения
+        
+        const form = document.getElementById('contactForm');
+        const messageTextarea = document.getElementById('message');
+        const counter = document.getElementById('messageCounter');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Счетчик символов
+        messageTextarea.addEventListener('input', function() {
+            const length = this.value.length;
+            counter.textContent = `${length}/500`;
+            
+            if (length > 450) {
+                counter.classList.add('warning');
+            } else {
+                counter.classList.remove('warning');
+            }
+            
+            if (length > 500) {
+                counter.classList.add('error');
+                this.value = this.value.substring(0, 500);
+            } else {
+                counter.classList.remove('error');
+            }
+        });
+        
+        // Валидация email (баг: неправильная валидация)
+        function validateEmail(email) {
+            // БАГ: слишком простая валидация
+            return email.includes('@'); // Должно быть: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        }
+        
+        // Валидация телефона (баг: нет валидации)
+        function validatePhone(phone) {
+            // БАГ: всегда возвращает true
+            return true; // Должна быть проверка формата
+        }
+        
+        // Показ ошибки
+        function showError(fieldId, message) {
+            const errorDiv = document.getElementById(fieldId + 'Error');
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+        }
+        
+        // Скрытие ошибки
+        function hideError(fieldId) {
+            const errorDiv = document.getElementById(fieldId + 'Error');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
+        }
+        
+        // Обработка отправки формы
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Скрываем все сообщения
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Скрываем все ошибки
+            ['name', 'email', 'phone', 'subject', 'message', 'agree'].forEach(hideError);
+            
+            let isValid = true;
+            
+            // Проверка имени
+            const name = document.getElementById('name').value.trim();
+            if (!name) {
+                showError('name', 'Поле обязательно для заполнения');
+                isValid = false;
+            }
+            
+            // Проверка email (баг: неправильная валидация)
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                showError('email', 'Поле обязательно для заполнения');
+                isValid = false;
+            } else if (!validateEmail(email)) {
+                showError('email', 'Введите корректный email адрес');
+                isValid = false;
+            }
+            
+            // Проверка телефона (баг: всегда проходит)
+            const phone = document.getElementById('phone').value.trim();
+            if (phone && !validatePhone(phone)) {
+                showError('phone', 'Введите телефон в формате +7 (XXX) XXX-XX-XX');
+                isValid = false;
+            }
+            
+            // Проверка темы (баг: можно не выбирать)
+            const subject = document.querySelector('input[name="subject"]:checked');
+            if (!subject) {
+                showError('subject', 'Выберите тему обращения');
+                isValid = false;
+            }
+            
+            // Проверка сообщения (баг: можно отправить пустое)
+            const message = document.getElementById('message').value.trim();
+            if (!message) {
+                showError('message', 'Сообщение обязательно для заполнения');
+                isValid = false;
+            } else if (message.length > 500) {
+                showError('message', 'Сообщение не должно превышать 500 символов');
+                isValid = false;
+            }
+            
+            // Проверка согласия (баг: можно не ставить галочку)
+            const agree = document.getElementById('agree').checked;
+            if (!agree) {
+                showError('agree', 'Необходимо дать согласие');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // Имитация отправки
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Отправка...';
+                
+                setTimeout(() => {
+                    // БАГ: иногда показывает ошибку вместо успеха
+                    const random = Math.random();
+                    if (random > 0.1) { // 90% успеха, 10% ошибки
+                        document.getElementById('successMessage').style.display = 'block';
+                    } else {
+                        document.getElementById('errorMessage').style.display = 'block';
+                    }
+                    
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Отправить';
+                    
+                    // БАГ: форма не очищается после успешной отправки
+                    // Должно быть: form.reset();
+                    
+                }, 1500);
+            }
+        });
+        
+        // Очистка формы
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            form.reset();
+            ['name', 'email', 'phone', 'subject', 'message', 'agree'].forEach(hideError);
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            counter.textContent = '0/500';
+            counter.classList.remove('warning', 'error');
+        });
+        
+        // БАГ: Enter в текстовом поле не работает
+        // БАГ: Нет валидации на лету
+    </script>
+</body>
+</html>
