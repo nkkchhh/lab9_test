@@ -11,9 +11,14 @@ from webdriver_manager.chrome import ChromeDriverManager
 from pages.contact_page import ContactPage
 
 class TestContactForm:
-    @pytest.fixture(autouse=True)
+        @pytest.fixture(autouse=True)
     def setup(self):
         """Настройка перед каждым тестом"""
+        from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.chrome.service import Service
+        from webdriver_manager.chrome import ChromeDriverManager
+        from webdriver_manager.core.os_manager import ChromeType
+
         # Настройки Chrome для GitHub Actions
         chrome_options = Options()
         chrome_options.add_argument('--headless')
@@ -22,13 +27,11 @@ class TestContactForm:
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--window-size=1920,1080')
         
-        # ФИКСИРОВАННАЯ версия ChromeDriver (стабильная)
-        chromedriver_version = "114.0.5735.90"
-        
-        # Создаем драйвер с фиксированной версией
+        # АВТОМАТИЧЕСКАЯ установка правильного ChromeDriver
         service = Service(
-            ChromeDriverManager(driver_version=chromedriver_version).install()
+            ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install()
         )
+        
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
         
         # Создаем Page Object
@@ -178,3 +181,4 @@ class TestContactForm:
         assert not agree_checked, "Чекбокс согласия не сбросился"
         
         print("Форма успешно очищена")
+
