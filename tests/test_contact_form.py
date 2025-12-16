@@ -4,17 +4,18 @@
 
 import pytest
 import os
+import chromedriver_autoinstaller  # ← ДОБАВЛЕНО
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.os_manager import ChromeType
 from pages.contact_page import ContactPage
 
 class TestContactForm:
     @pytest.fixture(autouse=True)
     def setup(self):
         """Настройка перед каждым тестом"""
+        # Автоматически устанавливаем правильный ChromeDriver
+        chromedriver_autoinstaller.install()
+        
         # Настройки Chrome для GitHub Actions
         chrome_options = Options()
         chrome_options.add_argument('--headless')
@@ -23,12 +24,8 @@ class TestContactForm:
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--window-size=1920,1080')
         
-        # АВТОМАТИЧЕСКАЯ установка правильного ChromeDriver
-        service = Service(
-            ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install()
-        )
-        
-        self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        # Создаем драйвер
+        self.driver = webdriver.Chrome(options=chrome_options)
         
         # Создаем Page Object
         self.contact_page = ContactPage(self.driver)
@@ -96,22 +93,20 @@ class TestContactForm:
         """
         print("\n=== Тест 3: Невалидный email ===")
         
-        # БАГ в форме: email валидация некорректная
         # Вводим явно невалидный email
         self.contact_page.fill_name("Тест")
-        self.contact_page.fill_email("invalid-email")  # Без @ и домена
+        self.contact_page.fill_email("invalid-email")
         self.contact_page.fill_message("Тестовое сообщение")
         self.contact_page.set_agreement(True)
         
         self.contact_page.submit_form()
         
-        # БАГ: форма должна показывать ошибку, но она ее пропускает
         error_text = self.contact_page.get_field_error_text('email')
         
-        if error_text:  # Если ошибка есть - хорошо
+        if error_text:
             assert "корректный email" in error_text.lower()
             print("Правильная ошибка при невалидном email")
-        else:  # Если ошибки нет - это баг
+        else:
             print("баг: форма принимает невалидный email")
     
     def test_negative_no_agreement(self):
@@ -123,11 +118,9 @@ class TestContactForm:
         self.contact_page.fill_name("Тест")
         self.contact_page.fill_email("test@example.com")
         self.contact_page.fill_message("Тестовое сообщение")
-        # НЕ ставим галочку согласия
         
         self.contact_page.submit_form()
         
-        # БАГ: форма может пропустить без согласия
         error_text = self.contact_page.get_field_error_text('agree')
         
         if error_text:
