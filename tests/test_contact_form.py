@@ -6,7 +6,7 @@ import pytest
 import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options  # ← ДОБАВЛЕНО
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from pages.contact_page import ContactPage
 
@@ -16,13 +16,20 @@ class TestContactForm:
         """Настройка перед каждым тестом"""
         # Настройки Chrome для GitHub Actions
         chrome_options = Options()
-        chrome_options.add_argument('--headless')          # ← ДОБАВЛЕНО
-        chrome_options.add_argument('--no-sandbox')        # ← ДОБАВЛЕНО
-        chrome_options.add_argument('--disable-dev-shm-usage') # ← ДОБАВЛЕНО
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--window-size=1920,1080')
         
-        # Создаем драйвер
-        service = Service(ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=service, options=chrome_options)  # ← ИЗМЕНЕНО
+        # ФИКСИРОВАННАЯ версия ChromeDriver (стабильная)
+        chromedriver_version = "114.0.5735.90"
+        
+        # Создаем драйвер с фиксированной версией
+        service = Service(
+            ChromeDriverManager(driver_version=chromedriver_version).install()
+        )
+        self.driver = webdriver.Chrome(service=service, options=chrome_options)
         
         # Создаем Page Object
         self.contact_page = ContactPage(self.driver)
@@ -171,49 +178,3 @@ class TestContactForm:
         assert not agree_checked, "Чекбокс согласия не сбросился"
         
         print("Форма успешно очищена")
-
-if __name__ == "__main__":
-    # Запуск тестов без pytest (для отладки)
-    import sys
-    import os
-    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-    
-    # Создаем драйвер (без headless для локальной отладки)
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service)
-    driver.maximize_window()
-    
-    try:
-        # Создаем Page Object
-        contact_page = ContactPage(driver)
-        
-        # Открываем форму
-        file_path = os.path.abspath("contact_form.html")
-        contact_page.open(f"file:///{file_path}")
-        
-        print("=" * 60)
-        print("Запуск тестов контактной формы")
-        print("=" * 60)
-        
-        # Запускаем тесты вручную
-        tests = TestContactForm()
-        tests.driver = driver
-        tests.contact_page = contact_page
-        
-        tests.test_positive_submit_valid_data()
-        print("-" * 40)
-        
-        tests.test_negative_empty_required_field()
-        print("-" * 40)
-        
-        tests.test_message_counter()
-        print("-" * 40)
-        
-        tests.test_reset_form()
-        
-        print("\n" + "=" * 60)
-        print("Тесты завершены")
-        print("=" * 60)
-        
-    finally:
-        driver.quit()
